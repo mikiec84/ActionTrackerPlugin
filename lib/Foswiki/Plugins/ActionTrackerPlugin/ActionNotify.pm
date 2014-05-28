@@ -342,6 +342,7 @@ sub _composeActionsMail {
 From: %EMAILFROM%
 To: %EMAILTO%
 Subject: %SUBJECT% on %WIKITOOLNAME%
+Auto-Submitted: auto-generated
 MIME-Version: 1.0
 Content-Type: text/plain
 
