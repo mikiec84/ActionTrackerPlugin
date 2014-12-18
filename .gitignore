@@ -1,0 +1,12 @@
+*.gz
+igp_*
+*.swp
+pub/System/ActionTrackerPlugin/styles.css
+pub/System/ActionTrackerPlugin/atp.js
+ActionTrackerPlugin.md5
+ActionTrackerPlugin.sha1
+ActionTrackerPlugin.tgz
+ActionTrackerPlugin.txt
+ActionTrackerPlugin.zip
+ActionTrackerPlugin_installer
+ActionTrackerPlugin_installer.pl

@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
 #
 # Copyright (C) 2002 Motorola - all rights reserved
 # Copyright (C) 2004-2011 Crawford Currie http://c-dot.co.uk
@@ -17,6 +17,10 @@
 # NOTE: THIS SCRIPT MUST BE RUN FROM THE bin DIRECTORY
 # This is so it can find setlib.cfg.
 #
+
+use warnings;
+use strict;
+
 BEGIN {
     require 'setlib.cfg';
 }
