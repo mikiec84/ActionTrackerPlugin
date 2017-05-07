@@ -26,7 +26,13 @@ sub initPlugin {
     $initialised = 0;
     $doneHeader  = 0;
 
-    Foswiki::Func::registerRESTHandler( 'update', \&_updateRESTHandler );
+    Foswiki::Func::registerRESTHandler(
+        'update', \&_updateRESTHandler,
+        authenticate => 1,                         # Checks access permissions
+        validate     => 0,
+        http_allow   => 'POST',
+        description  => 'Update a single action'
+    );
 
     Foswiki::Func::registerTagHandler( 'ACTIONSEARCH', \&_handleActionSearch,
         'context-free' );
