@@ -242,7 +242,10 @@ sub test_B_NotifyLate {
     }
 
     my $ok = "";
-    while ( $html = shift(@FoswikiFnTestCase::mails) ) {
+    my $mail;
+    while ( $mail = shift(@FoswikiFnTestCase::mails) ) {
+
+        my $html = $mail->as_string();
 
         # Ensure all macros are expanded in the output
         $this->assert_does_not_match( qr/%\w+%/, $html, $html );
@@ -357,8 +360,9 @@ sub test_C_ChangedSince {
         }
         $this->assert( 0, "$mess\n" );
     }
-    while ( $html = shift(@FoswikiFnTestCase::mails) ) {
-        my $re = qr/^From: /m;
+    while ( my $mail = shift(@FoswikiFnTestCase::mails) ) {
+        my $html = $mail->as_string();
+        my $re   = qr/^From: /m;
         $this->assert_matches( $re, $html );
         $re = qr/^Subject: .*Changes to actions /m;
         $this->assert_matches( $re, $html );

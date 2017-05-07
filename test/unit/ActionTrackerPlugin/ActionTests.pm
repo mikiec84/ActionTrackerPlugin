@@ -8,6 +8,7 @@ use Foswiki::Plugins::ActionTrackerPlugin::Action;
 use Foswiki::Plugins::ActionTrackerPlugin::Format;
 use Time::ParseDate;
 use CGI;
+use URI::URL;
 
 sub new {
     my $self = shift()->SUPER::new(@_);
@@ -479,24 +480,43 @@ sub test_HTMLFormattingOpen {
 
     $fmt =
       new Foswiki::Plugins::ActionTrackerPlugin::Format( "", "| \$edit |", "" );
-    my $url =
-"$Foswiki::cfg{DefaultUrlHost}$Foswiki::cfg{ScriptUrlPath}/edit$Foswiki::cfg{ScriptSuffix}/Test/Topic\\?skin=$skin;nowysiwyg=1;origin=$this->{test_web}.$this->{test_topic}%23Test:Topic:AcTion0;atp_action=AcTion0;.*";
+
+    my $url = new URI::URL(
+"$Foswiki::cfg{DefaultUrlHost}$Foswiki::cfg{ScriptUrlPath}/edit$Foswiki::cfg{ScriptSuffix}/Test/Topic"
+    );
+
     $s = $fmt->formatHTMLTable( [$action] );
     $this->assert(
-        $s =~ m(<td><a name=\"AcTion0\" /> <a href="(.*?)">edit</a> </td>),
-        $s );
-    $this->assert( $1, $s );
-    $this->assert_matches( qr(^$url), $1 );
+        $s =~
+m(<td><a name=(["'])AcTion0\1\s*/>\s*<a[^>]* href=(["'])(.*?)\2[^>]*>edit</a>\s*</td>),
+        $s
+    );
+    my $href = $3;
+    $this->assert_matches( qr(^$url), $href );
+    my $goturl = new URI::URL($href);
+    my %p = map { /(.*?)=(.*)/; $1 => $2; } split( /[;&]/, $goturl->query );
+    $this->assert_equals( $skin, $p{skin} );
+    $this->assert_num_equals( 1, $p{nowysiwyg} );
+    $this->assert_equals(
+        "$this->{test_web}.$this->{test_topic}#Test:Topic:AcTion0",
+        $p{origin} );
+    $this->assert_equals( "AcTion0", $p{atp_action} );
 
     $fmt =
       new Foswiki::Plugins::ActionTrackerPlugin::Format( "", "| \$edit |", "" );
     $s = $fmt->formatHTMLTable( [$action], 'atp' );
     $this->assert_not_null($s);
     $this->assert(
-        $s =~ m(<td><a name=\"AcTion0\" />\s*<a (.*?)>edit</a>\s*</td>), $s );
-    my $x = $1;
-    $this->assert_matches( qr/href="$url\d+"/,  $x );
-    $this->assert_matches( qr/class="atp_edit/, $x );
+        $s =~
+m(<td><a name=(["'])AcTion0\1\s*/>\s*<a([^>]*) href=(["'])(.*?)\3[^>]*>edit</a>\s*</td>),
+        $s
+    );
+    my $more = $2;
+    $href = $4;
+    $this->assert_matches( qr(^$url), $href );
+    $goturl = new URI::URL($href);
+    %p = map { /(.*?)=(.*)/; $1 => $2; } split( /[;&]/, $goturl->query );
+    $this->assert_matches( qr/\batp_edit\b/, $more );
 
     $fmt = new Foswiki::Plugins::ActionTrackerPlugin::Format( "",
         "| \$web.\$topic |", "" );
@@ -893,7 +913,7 @@ sub test_CreateFromQuery {
     $chosen =~ s/ who="$this->{users_web}\.Who"//o;
     $chosen =~ s/ created="2003-05-03"//o;
     $chosen =~ s/ uid="UID"//o;
-    $this->assert_matches( qr/^%ACTION{\s*}% Text %ENDACTION%$/, $chosen, );
+    $this->assert_matches( qr/^%ACTION\{\s*\}% Text %ENDACTION%$/, $chosen, );
 }
 
 sub test_FormatForEditHidden {
@@ -902,7 +922,7 @@ sub test_FormatForEditHidden {
     my $action =
       new Foswiki::Plugins::ActionTrackerPlugin::Action( "Web", "Topic", 9,
         <<EG, "Text" );
-state="open" creator="$this->{users_web}.Creator" notify="$this->{users_web}.Notifyee" closer="$this->{users_web}.Closer" due="4-May-2003" closed="2-May-2003" who="$this->{users_web}.Who" created="3-May-2003" uid="UID"
+state="open" creator="$this->{users_web}.Creator" notify="$this->{users_web}.Notifyee" closer="$this->{users_web}.Closer" due="4-May-2003" closed="3-May-2003" who="$this->{users_web}.Who" created="2-May-2003" uid="UID"
 EG
     my $fmt =
       new Foswiki::Plugins::ActionTrackerPlugin::Format( "|Who|", "|\$who|",
@@ -910,38 +930,46 @@ EG
     my $s = $action->formatForEdit($fmt);
 
     # only the who field should be a text; the rest should be hiddens
-    $s =~ s(<input (.*?name="state".*?)/>)();
-    my $glim = $1;
-    $this->assert_matches( qr/type="hidden"/, $glim );
-    $this->assert_matches( qr/value="open"/,  $glim );
-    $s =~ s(<input (.*?name="creator".*?)/>)();
-    $glim = $1;
-    $this->assert_matches( qr/type="hidden"/,                       $glim );
-    $this->assert_matches( qr/value="$this->{users_web}\.Creator"/, $glim );
-    $s =~ s(<input (.*?name="notify".*?)/>)();
-    $glim = $1;
-    $this->assert_matches( qr/type="hidden"/,                        $glim );
-    $this->assert_matches( qr/value="$this->{users_web}\.Notifyee"/, $glim );
-    $s =~ s(<input (.*?name="closer".*?)/>)();
-    $glim = $1;
-    $this->assert_matches( qr/type="hidden"/,                      $glim );
-    $this->assert_matches( qr/value="$this->{users_web}\.Closer"/, $glim );
-    $s =~ s(<input (.*?name="due".*?)/>)();
-    $glim = $1;
-    $this->assert_matches( qr/type="hidden"/,        $glim );
-    $this->assert_matches( qr/value="0?4 May 2003"/, $glim );
-    $s =~ s(<input (.*?name="closed".*?)/>)();
-    $glim = $1;
-    $this->assert_matches( qr/type="hidden"/,        $glim );
-    $this->assert_matches( qr/value="0?2 May 2003"/, $glim );
-    $s =~ s(<input (.*?name="created".*?)/>)();
-    $glim = $1;
-    $this->assert_matches( qr/type="hidden"/,        $glim );
-    $this->assert_matches( qr/value="0?3 May 2003"/, $glim );
-    $s =~ s(<input (.*?name="uid".*?)/>)();
-    $glim = $1;
-    $this->assert_matches( qr/type="hidden"/, $glim );
-    $this->assert_matches( qr/value="UID"/,   $glim );
+    while ( $s =~ s!(<input [^>]*/>)!! ) {
+        my $i = $1;
+        $i =~ /name=(["'])(\w+)\1/;
+        my $name = $2;
+        my ( $type, $value, $more ) = ( 'hidden', '', '' );
+        if ( $name eq 'state' ) {
+            $value = 'open';
+        }
+        elsif ( $2 eq 'creator' ) {
+            $value = "$this->{users_web}.Creator";
+        }
+        elsif ( $name eq 'notify' ) {
+            $value = "$this->{users_web}.Notifyee";
+        }
+        elsif ( $name eq 'closer' ) {
+            $value = "$this->{users_web}.Closer";
+        }
+        elsif ( $name eq 'due' ) {
+            $value = "04 May 2003";
+        }
+        elsif ( $name eq 'closed' ) {
+            $value = "03 May 2003";
+        }
+        elsif ( $name eq 'created' ) {
+            $value = "02 May 2003";
+        }
+        elsif ( $name eq 'uid' ) {
+            $value = "UID";
+        }
+        elsif ( $name eq 'who' ) {
+            $value = "$this->{users_web}.Who";
+            $type  = 'text';
+            $more  = "size='35'";
+        }
+        else {
+            $this->assert( 0, $i );
+        }
+        $this->assert_html_equals(
+            "<input name='$name' type='$type' value='$value' $more/>", $i );
+    }
     $this->assert_does_not_match( qr/name="text"/,   $s );
     $this->assert_does_not_match( qr/type="hidden"/, $s );
 }

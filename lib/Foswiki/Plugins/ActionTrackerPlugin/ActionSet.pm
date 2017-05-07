@@ -333,15 +333,9 @@ sub allActionsInWeb {
 
     foreach my $topic ( keys %$grep ) {
 
-        # SMELL: always read the text, because it's faster in the current
-        # impl to find the perms embedded in it
-        my $text =
-          Foswiki::Func::readTopicText( $web, $topic, undef, $internal );
-        next
-          unless $internal
-          || Foswiki::Func::checkAccessPermission( 'VIEW',
-            Foswiki::Func::getWikiName(),
-            $text, $topic, $web );
+        my ( $m, $text ) = Foswiki::Func::readTopic( $web, $topic );
+        next unless $internal || $m->haveAccess('VIEW');
+
         my $tacts =
           Foswiki::Plugins::ActionTrackerPlugin::ActionSet::load( $web, $topic,
             $text );

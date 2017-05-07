@@ -30,8 +30,8 @@ sub actionNotify {
     # Assign SESSION so that Func methods work
     $Foswiki::Plugins::SESSION = $session;
 
-    if ( $expr =~ /\bweb="([^" ,*]+)"/ ) {
-        Foswiki::Func::pushTopicContext( $1, 'WebHome' );
+    if ( $expr =~ /\bweb=(["'])([^" ,*]+?)\1/ ) {
+        Foswiki::Func::pushTopicContext( $2, 'WebHome' );
     }
 
     Foswiki::Plugins::ActionTrackerPlugin::lazyInit( $session->{webName},
@@ -232,7 +232,7 @@ sub _loadWebNotify {
 
     my $list    = {};
     my $mainweb = Foswiki::Func::getMainWebname();
-    my $text    = Foswiki::Func::readTopicText( $web, $topicname, undef, 1 );
+    my ( $m, $text ) = Foswiki::Func::readTopic( $web, $topicname );
     foreach my $line ( split( /\r?\n/, $text ) ) {
         if ( $line =~ /^\s+\*\s([\w\.]+)\s+-\s+([\w\-\.\+]+\@[\w\-\.\+]+)/o ) {
             my $who  = $1;
@@ -299,8 +299,7 @@ sub _getMailAddress {
 
         # LEGACY - Try and expand groups the old way
         if ( !$addresses && Foswiki::Func::topicExists( $inweb, $intopic ) ) {
-            my $text =
-              Foswiki::Func::readTopicText( $inweb, $intopic, undef, 1 );
+            my ( $m, $text ) = Foswiki::Func::readTopic( $inweb, $intopic );
             if ( $intopic =~ m/Group$/o ) {
 
                 # If it's a Group topic, match * Set GROUP =
@@ -433,14 +432,14 @@ sub _findChangesInTopic {
     $oldrev =~ s/\d+\.(\d+)/$1/o;
 
     # Recover the action set at that date
-    my $text = Foswiki::Func::readTopicText( $theWeb, $theTopic, $oldrev, 1 );
+    my ( $m, $text ) = Foswiki::Func::readTopic( $theWeb, $theTopic, $oldrev );
 
     my $oldActions =
       Foswiki::Plugins::ActionTrackerPlugin::ActionSet::load( $theWeb,
         $theTopic, $text );
 
     # Recover the current action set.
-    $text = Foswiki::Func::readTopicText( $theWeb, $theTopic, undef, 1 );
+    ( $m, $text ) = Foswiki::Func::readTopic( $theWeb, $theTopic );
     my $currentActions =
       Foswiki::Plugins::ActionTrackerPlugin::ActionSet::load( $theWeb,
         $theTopic, $text );
