@@ -8,8 +8,8 @@ use Error qw( :try );
 use Foswiki::Func    ();
 use Foswiki::Plugins ();
 
-our $VERSION = '2.4.10';
-our $RELEASE = '2013-02-27';
+our $VERSION = '2.4.11';
+our $RELEASE = '2017-05-07';
 our $SHORTDESCRIPTION =
 'Adds support for action tags in topics, and automatic notification of action statuses';
 our $initialised = 0;
@@ -44,7 +44,7 @@ sub initPlugin {
 sub commonTagsHandler {
     my ( $otext, $topic, $web, $meta ) = @_;
 
-    return unless ( $_[0] =~ m/%ACTION.*{.*}%/o );
+    return unless ( $_[0] =~ m/%ACTION.*\{.*\}%/o );
 
     return unless lazyInit( $web, $topic );
 
@@ -82,7 +82,7 @@ sub commonTagsHandler {
     # COVERAGE OFF debug only
     if ( $options->{DEBUG} ) {
         $_[0] =~
-          s/%ACTIONNOTIFICATIONS{(.*?)}%/_handleActionNotify($web, $1)/geo;
+          s/%ACTIONNOTIFICATIONS\{(.*?)\}%/_handleActionNotify($web, $1)/geo;
     }
 
     # COVERAGE ON
@@ -112,7 +112,7 @@ sub _beforeNormalEdit {
 
     #my( $text, $topic, $web, $meta ) = @_;
     # Coarse method of testing if modern action syntax is used
-    my $oc = scalar( $_[0] =~ m/%ACTION{.*?}%/g );
+    my $oc = scalar( $_[0] =~ m/%ACTION\{.*?\}%/g );
     my $cc = scalar( $_[0] =~ m/%ENDACTION%/g );
 
     if ( $cc < $oc ) {
@@ -360,7 +360,7 @@ sub beforeSaveHandler {
         my $inpost   = 0;
         my $text     = "";
         foreach my $line ( split( /\r?\n/, $_[0] ) ) {
-            if ( $line =~ /^%META:[^{]+{[^}]*}%/ ) {
+            if ( $line =~ /^%META:[^{]+\{[^}]*\}%/ ) {
                 if ($inpost) {
                     $postmeta .= "$line\n";
                 }
@@ -602,7 +602,7 @@ sub _updateSingleAction {
 __END__
 
 Copyright (C) 2002-2003 Motorola UK Ltd - All rights reserved
-Copyright (C) 2004-2011 Crawford Currie http://c-dot.co.uk
+Copyright (C) 2004-2017 Crawford Currie http://c-dot.co.uk
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
