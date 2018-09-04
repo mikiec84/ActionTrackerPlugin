@@ -460,7 +460,7 @@ sub _findChangesInWeb {
 
     my @tops = Foswiki::Func::getTopicList($web);
     my $grep = Foswiki::Func::searchInWebContent(
-        '%ACTION{.*}%',
+        '%ACTION\{.*}%',
         $web,
         \@tops,
         {

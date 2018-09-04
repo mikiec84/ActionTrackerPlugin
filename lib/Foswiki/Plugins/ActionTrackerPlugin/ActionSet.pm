@@ -310,7 +310,7 @@ sub allActionsInWeb {
 
     @tops = grep( /^$topics$/, @tops ) if ($topics);
     my $grep = Foswiki::Func::searchInWebContent(
-        '%ACTION{.*}%',
+        '%ACTION\{.*}%',
         $web,
         \@tops,
         {
