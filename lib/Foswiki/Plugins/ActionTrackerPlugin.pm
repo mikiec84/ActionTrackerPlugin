@@ -8,8 +8,8 @@ use Error qw( :try );
 use Foswiki::Func    ();
 use Foswiki::Plugins ();
 
-our $VERSION = '2.4.11';
-our $RELEASE = '2017-05-07';
+our $VERSION = '2.4.12';
+our $RELEASE = '2018-09-05';
 our $SHORTDESCRIPTION =
 'Adds support for action tags in topics, and automatic notification of action statuses';
 our $initialised = 0;
