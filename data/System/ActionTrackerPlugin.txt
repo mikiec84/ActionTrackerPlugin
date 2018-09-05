@@ -455,6 +455,8 @@ Thanks are due to the following sponsors, who have helped make this plugin possi
 |  Copyright | Copyright &copy; 2002-2003 Motorola. All Rights Reserved.%BR% Copyright &copy; 2004-2013 Crawford Currie |
 |  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
 |  Change History: | |
+|  2.4.12 (5 Sep 2018) | Foswiki:Tasks/Item14757: fix indirect "Unescaped left brace in regex..." warnings |
+|  2.4.11 (7 May 2017) | Foswiki:Tasks/Item12315: add missing Config.spec; Foswiki:Tasks/Item12823: add "auto-generated" email header; Foswiki:Tasks/Item14382: fix unescaped braces; Foswiki:Tasks/Item14231: set REST options; Foswiki:Tasks/Item11587: eliminate calls to readTopicText, rework tests |
 |  2.4.10 (27 Feb 2013) | Foswiki:Tasks/Item11832: restored link targets; Foswiki:Tasks/Item12315: recoded JS for more recent jQuery version; now minimum 1.7.0 required; added checker for jquery version; Foswiki:Tasks/Item8894: after edit, redirect back to the linking topic |
 |  2.4.9 (21 Dec 2011) | Foswiki:Tasks/Item11380: add better message for lease conflict |
 |  2.4.8 (8 Dec 2011) | Foswiki:Tasks/Item11340: Fix ACTIONTRACKERPLUGIN_CSS as per documentation |
